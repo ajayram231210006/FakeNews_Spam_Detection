@@ -1,82 +1,73 @@
-\# FakeNews\_Spam\_Detection
 
 
+---
 
-Project: Fake News \& Spam Detection using Machine Learning and NLP
+# FakeNews_Spam_Detection
 
+**Project:** Fake News & Spam Detection using Machine Learning and NLP
 
+---
 
-\## Project structure
+## 📁 Project Structure
 
-\- `data/` - raw \& processed \*\*(ignored from git; stored locally or shared separately)\*\*
+* `data/` — raw & processed **(ignored from git; stored locally or shared separately)**
+* `notebooks/` — Jupyter notebooks (EDA, preprocessing, experiments)
+* `src/` — scripts (`preprocess.py`, training scripts, etc.)
+* `reports/` — dataset summary, sample rows, slides
+* `.gitignore` — files/folders excluded from git
+* `requirements.txt` — Python packages (generate using `pip freeze`)
 
-\- `notebooks/` - Jupyter notebooks (EDA, preprocessing, experiments)
+---
 
-\- `src/` - scripts (preprocess.py, train scripts)
+## ⚙️ How to Set Up (for Teammates)
 
-\- `reports/` - dataset summary, sample rows, slides
+### 1. Clone the repository
 
-\- `.gitignore` - files/folders excluded from git
-
-\- `requirements.txt` - Python packages (generate with pip freeze)
-
-
-
-\## How to set up (for teammates)
-
-1\. Clone the repo:
-
+```bash
 git clone https://github.com/ajayram231210006/FakeNews_Spam_Detection.git
+cd FakeNews_Spam_Detection
+```
 
-cd FakeNews\_Spam\_Detection
+---
 
+### 2. Get the data
 
+Processed and raw data are **not** in the repository.
+Download the datasets and place them in:
 
+```
+data/raw/
+```
 
+#### 📦 Data sharing
 
-2\. Get the data:
+Processed data (cleaned CSVs) are available on Google Drive:
+[Download here](https://drive.google.com/file/d/1jIIusWgOHIVbW30oRrbHZ0e29gZ-fkah/view?usp=sharing)
 
-\- Processed and raw data are \*\*not\*\* in the repo. Download the datasets and put them in:
+---
 
-&nbsp; ```
+### 3. Create virtual environment & install dependencies
 
-&nbsp; data/raw/
-
-&nbsp; ```
-
-&nbsp; 
-
-## Data sharing
-Processed data (cleaned CSVs) are on Google Drive:
-https://drive.google.com/file/d/1jIIusWgOHIVbW30oRrbHZ0e29gZ-fkah/view?usp=sharing
-
-
-
-3\. Create virtual env \& install deps:
-
+```bash
 python -m venv venv
-
-venv\\Scripts\\activate
-
+venv\Scripts\activate
 pip install -r requirements.txt
+```
 
+---
 
+### 4. Run preprocessing
 
+```bash
+python src\preprocess.py
+```
 
+---
 
-4\. Run preprocessing:
+## 👥 Contact
 
-python src\\preprocess.py
+**Ajayram** — Member A
+*Roles:* Data collection, preprocessing, EDA
 
-
-
-
-
-\## Contact
-
-Ajayram — Member A (Data collection, preprocessing, EDA)
-
-
-
-
+---
 
