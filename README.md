@@ -44,7 +44,7 @@ cd FakeNews\_Spam\_Detection
 
 &nbsp; ```
 
-&nbsp; (or ask Ajayram for the Drive link)
+&nbsp; 
 
 ## Data sharing
 Processed data (cleaned CSVs) are on Google Drive:
