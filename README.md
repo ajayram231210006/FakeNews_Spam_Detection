@@ -26,7 +26,7 @@ Project: Fake News \& Spam Detection using Machine Learning and NLP
 
 1\. Clone the repo:
 
-git clone https://github.com/ajayram231210006/FakeNews\_Spam\_Detection.git
+git clone https://github.com/ajayram231210006/FakeNews_Spam_Detection.git
 
 cd FakeNews\_Spam\_Detection
 
