@@ -46,6 +46,10 @@ cd FakeNews\_Spam\_Detection
 
 &nbsp; (or ask Ajayram for the Drive link)
 
+## Data sharing
+Processed data (cleaned CSVs) are on Google Drive:
+https://drive.google.com/file/d/1jIIusWgOHIVbW30oRrbHZ0e29gZ-fkah/view?usp=sharing
+
 
 
 3\. Create virtual env \& install deps:
