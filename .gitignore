@@ -1,5 +1,6 @@
 # Virtual environment
 venv/
+myenv/
 
 # Data (do not push raw or processed data)
 data/raw/
