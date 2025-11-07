@@ -1,88 +1,209 @@
-# 🧭 Team Workflow Guide for FakeNews_Spam_Detection
-
-Hi all 👋  
-The **main branch** is now protected — no one can push directly.  
-Follow these steps to contribute safely and keep the repo clean.
 
 ---
 
-## 🪜 Step 1: Clone the Repository
+# 🧩 Team Workflow Guide
+
+**Repository:** `FakeNews_Spam_Detection`
+**Purpose:** To maintain a clean, stable, and reproducible collaborative workflow.
+
+---
+
+## 🎯 Objectives
+
+* Keep the repository **clean, reviewable, and stable**.
+* Ensure all changes are **tested and reviewed** before merging.
+* Protect **sensitive data** and enforce **reproducibility**.
+
+---
+
+## ⚙️ Core Principles
+
+* **`main` is protected** — never push directly.
+* **One task = one branch + one PR.**
+* Make **small, frequent commits** with meaningful messages.
+* **CI/tests must pass** before merging.
+
+---
+
+## 🚀 Quick Overview (TL;DR)
+
+1. Create a branch from `main`.
+2. Make changes and add tests (if applicable).
+3. Commit with clear messages.
+4. Push your branch and open a PR.
+5. Request review and address feedback.
+6. Merge after CI passes ✅ and at least one approval.
+
+---
+
+## 🌿 Branching Strategy
+
+* Always branch off the **latest `main`**.
+* **Branch name formats:**
+
+  * `feature/<your-name>-<short-desc>` → e.g. `feature/ajay-add-feature-extraction`
+  * `fix/<issue-number>-<short-desc>` → e.g. `fix/12-fix-tokenizer-bug`
+  * `chore/<short-desc>` → e.g. `chore/update-deps`
+  * `experiment/<short-desc>` → for exploratory work (review before merge)
+
+---
+
+## 💻 Common Git Commands
+
+### Keep your local main updated:
 
 ```bash
-git clone https://github.com/ajayram231210006/FakeNews_Spam_Detection.git
-cd FakeNews_Spam_Detection
-🪜 Step 2: Create a New Branch for Your Task
-(Use your name or task name in the branch for clarity.)
+git checkout main
+git pull origin main
+```
 
-bash
-Copy code
-git checkout -b feature/aniket_feature_extraction
-# or
-git checkout -b feature/abhishek_model_training
-💡 Naming convention:
-Use lowercase letters and underscores for consistency, e.g.
+### Create a branch:
 
-feature/aniket_feature_extraction
+```bash
+git checkout -b feature/<your-name>-<short-desc>
+```
 
-fix/abhishek_bug_patch
+### Stage & commit:
 
-docs/team_workflow
+```bash
+git add <files>
+git commit -m "type(scope): short summary
 
-🪜 Step 3: Make Your Changes
-Add your notebooks, scripts, or reports to the appropriate folders:
+Longer description if needed (wrap at ~72 chars)."
+```
 
-bash
-Copy code
-notebooks/, src/, reports/
-⚠️ Do not modify or commit files in data/ — they’re ignored by .gitignore.
-⚠️ Do not commit large datasets or model files.
+### Push your branch:
 
-🪜 Step 4: Stage and Commit Your Changes
-bash
-Copy code
-git add .
-git commit -m "Added feature extraction code"
-✅ Tip: Keep commits small, clear, and meaningful.
+```bash
+git push origin feature/<your-name>-<short-desc>
+```
 
-🪜 Step 5: Push Your Branch to GitHub
-bash
-Copy code
-git push origin feature/aniket_feature_extraction
-🪜 Step 6: Open a Pull Request (PR)
-Go to your repository on GitHub.
+---
 
-You’ll see a prompt saying “Compare & pull request.”
+## 🧾 Commit Message Conventions
 
-Click it → Add a title and short description → Click Create pull request.
+| Prefix      | Purpose                           |
+| :---------- | :-------------------------------- |
+| `feat:`     | New feature                       |
+| `fix:`      | Bug fix                           |
+| `docs:`     | Documentation only changes        |
+| `style:`    | Formatting, no code change        |
+| `refactor:` | Code restructure, no new features |
+| `test:`     | Adding or fixing tests            |
+| `chore:`    | Maintenance tasks                 |
 
-Example:
+**Examples:**
 
-Title: Add Feature Extraction Module
+* `feat(model): add TF-IDF feature extraction`
+* `fix(preprocessing): handle empty text inputs`
 
-Description: Implemented TF-IDF vectorizer and preprocessing pipeline.
+---
 
-🪜 Step 7: Wait for Review/Approval
-Ajayram (or another teammate) will review and approve the PR.
-After approval, it will be merged into the main branch.
+## 🔄 Pull Request (PR) Process
 
-✅ Key Rules
-🚫 Do not push directly to main.
-🌿 Always create a new branch for every task.
-👍 Get at least one approval before merging.
-✍️ Keep commits small and meaningful.
+* Open a **PR against `main`** with:
 
-Let’s keep the repo clean, organized, and conflict-free 💪
+  * ✅ Clear title and purpose
+  * 🧠 What changed and why
+  * 🧩 How to test locally
+* Link related issue(s): `Closes #<issue-number>`
+* Assign reviewers and wait for **at least one approval**
+* Merge only when **CI passes** (preferably green ✅)
 
-🧾 Quick Summary
-Step Action Command
-1 Clone repo git clone <repo-url>
-2 Create new branch git checkout -b feature/<name>
-3 Commit changes git add . && git commit -m "<msg>"
-4 Push branch git push origin <branch>
-5 Open PR via GitHub UI
-6 Wait for review Get approval before merge
+---
 
-✨ Author
-Ajayram Meena
-Maintainer — FakeNews_Spam_Detection Team Workflow
+## 🧮 PR Checklist
+
+* [ ] PR description explains **why** and **what**
+* [ ] Builds locally & tests pass
+* [ ] Includes/updates tests
+* [ ] No sensitive data (datasets, keys, credentials)
+* [ ] Code is readable & documented
+* [ ] Dependencies are justified
+* [ ] Lint/style checks passed
+
+---
+
+## 🧠 Testing & CI
+
+* Add **unit tests** for core logic.
+* Keep **notebooks reproducible** — no large raw data commits.
+* **CI must pass** before merging.
+
+---
+
+## 📂 Data Handling
+
+* `data/` is **git-ignored** — never commit raw data or credentials.
+* Include **download/preprocess scripts** in `scripts/` or `docs/`.
+* Use **sample/synthetic data** for tests and CI.
+
+---
+
+## 🚢 Releases & `main`
+
+* `main` should **always be deployable**.
+* After merge, CI must confirm no regressions.
+* Tag releases or maintain a **CHANGELOG**.
+
+---
+
+## 🧯 Reverting & Emergency Fixes
+
+* For urgent fixes → small, focused `fix/...` branch + PR.
+* If regression occurs → revert the PR or create a hotfix branch.
+
+---
+
+## 💬 Communication
+
+* Mention reviewers in PRs and be responsive.
+* Discuss large or uncertain changes in **Issues** or **draft PRs**.
+* Use **GitHub Issues** to track bugs, ideas, and progress.
+
+---
+
+## 🧰 Useful Commands (Quick Reference)
+
+```bash
+git checkout main && git pull origin main   # update local main
+git checkout -b feature/yourname-shortdesc  # create branch
+git push -u origin feature/yourname-shortdesc  # push branch
+git fetch origin && git rebase origin/main  # optional rebase
+```
+
+---
+
+## 🧑‍💻 Contacts / Reviewers
+
+**Maintainer:** [@ajayram231210006](https://github.com/ajayram231210006)
+Other reviewers can be added in PRs.
+
+---
+
+## 📝 Example PR Template
+
+**Title:** `feat(<area>): short summary`
+
+**Description:**
+
+* **Summary:** What changed and why
+* **How to test:**
+
+  * Steps to reproduce locally
+* **Related issues:** `Closes #X`
+
+**Notes:**
+
+* Add context, screenshots, or details if needed.
+
+---
+
+## 🌟 Final Notes
+
+* Prefer **small, focused PRs** for faster review.
+* Unsure about design? → open a **draft PR** or **issue** first.
+* Thanks for contributing 🙌 — let’s keep the repo clean, reproducible & collaborative.
+
+---
 
