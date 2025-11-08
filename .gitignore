@@ -23,3 +23,26 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.log
+
+# ===== Ignore large dataset files =====
+data/processed/clean_fake_news.csv
+data/raw/fake_news.csv
+data/raw/fake_news_unified.csv
+
+# ===== Ignore entire venv folder =====
+venv/
+
+# ===== Ignore generated files and logs =====
+uploads/
+outputs/
+logs/
+predictions.csv
+sample_input.csv
+project_structure.txt
+app(BackUp).py
+templates/index(Abhishek).html
+
+# ===== Ignore cache files =====
+__pycache__/
+*.pyc
+
