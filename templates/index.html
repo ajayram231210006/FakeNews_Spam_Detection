@@ -1,84 +1,267 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FakeBuster</title>
-    
-    <!-- Inline script to prevent flash of unstyled content -->
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.classList.add('dark-theme');
-            } else if (savedTheme === 'light') {
-                // Light mode - explicitly ensure no dark theme
-                document.documentElement.classList.remove('dark-theme');
-            } else {
-                // No saved preference - default to dark mode
-                document.documentElement.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-            }
-        })();
-    </script>
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FakeNews & Spam Demo</title>
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 24px; }
+    .badge-uncertain { background: #f0ad4e; color: #000; }
+    .badge-fake { background: #dc3545; }
+    .badge-real { background: #28a745; }
+    .small-help { font-size: .9rem; color: #666; }
+    #csv-preview { max-height: 300px; overflow:auto; }
+  </style>
 </head>
 <body>
-    <!-- Theme Toggle Button -->
-    <div class="theme-toggle-container">
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-            <div class="toggle-track">
-                <div class="toggle-thumb">
-                    <span class="icon">🌙</span>
-                </div>
+  <div class="container">
+    <h1 class="mb-3">AI FakeNews & Spam — Demo</h1>
+    <p class="small-help">Use the forms below to test single texts or batch CSV uploads. Thresholding & models are served by the backend.</p>
+
+    <ul class="nav nav-tabs" id="modeTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button">Single Text</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="csv-tab" data-bs-toggle="tab" data-bs-target="#csv" type="button">CSV Upload</button>
+      </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+      <!-- Single Text -->
+      <div class="tab-pane fade show active" id="text" role="tabpanel">
+        <div class="card p-3 mb-3">
+          <form id="singleForm" onsubmit="return false;">
+            <div class="mb-3">
+              <label class="form-label">Task</label>
+              <select id="singleTask" class="form-select" style="max-width:240px;">
+                <option value="fake">Fake News</option>
+                <option value="spam">SMS/Spam</option>
+              </select>
             </div>
-        </button>
-        <!-- <span class="theme-label" id="themeLabel">Light Mode</span> -->
-    </div>
-    
-    <div class="wrapper">
-        <div class="container">
-            <h2>FakeBuster: Fake News & Spam Detection</h2>
-        <form action="/predict" method="post" id="predictionForm">
-            <label for="task">Choose Functionality:</label>
-            <select name="task" id="task" onchange="updatePlaceholder()">
-                <option value="fake_news" {% if task == "fake_news" %}selected{% endif %}>Fake News Detection</option>
-                <option value="spam" {% if task == "spam" %}selected{% endif %}>Spam Email Detection</option>
-            </select>
 
-            <label for="message">Enter your text:</label>
-            <textarea name="message" id="message" rows="6" placeholder="Enter news headline or article here...">{{ message or '' }}</textarea>
-
-            <div class="button-group">
-                <button type="submit" id="predictBtn">Predict</button>
-                <button type="button" id="clearBtn" onclick="clearForm()">Clear</button>
+            <div class="mb-3">
+              <label class="form-label">Text</label>
+              <textarea id="singleText" class="form-control" rows="4" placeholder="Paste news or SMS text here...">Congratulations — you won a prize!</textarea>
             </div>
-        </form>
 
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-            <div class="spinner"></div>
-            <p>Analyzing...</p>
-        </div>
+            <div class="row g-2 align-items-center mb-3">
+              <div class="col-auto">
+                <label class="form-label">Threshold</label>
+                <input id="singleThreshold" class="form-control" type="number" step="0.01" min="0" max="1" value="0.75" style="width:110px;">
+              </div>
+              <div class="col-auto">
+                <button id="singleBtn" class="btn btn-primary mt-3" onclick="predictText()">Predict</button>
+              </div>
+              <div class="col">
+                <div id="singleSpinner" class="spinner-border text-primary" role="status" style="display:none;width:1.4rem;height:1.4rem;vertical-align:middle"></div>
+              </div>
+            </div>
+          </form>
 
-        {% if result %}
-        <div class="result {{ 'result-real' if 'Real' in result or 'Not Spam' in result or 'Ham' in result else 'result-fake' }}">
-            <h3>Prediction Result:</h3>
-            <p>{{ result }}</p>
+          <div id="singleResult" style="display:none;">
+            <h5>Result</h5>
+            <div id="singleResultBody" class="p-2 border rounded"></div>
+          </div>
         </div>
-        {% endif %}
+      </div>
+
+      <!-- CSV Upload -->
+      <div class="tab-pane fade" id="csv" role="tabpanel">
+        <div class="card p-3 mb-3">
+          <form id="csvForm" onsubmit="return false;">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="form-label">Task</label>
+                <select id="csvTask" class="form-select">
+                  <option value="fake">Fake News</option>
+                  <option value="spam">SMS/Spam</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Text Column Name</label>
+                <input id="csvTextCol" class="form-control" value="text">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Threshold</label>
+                <input id="csvThreshold" class="form-control" value="0.75">
+              </div>
+            </div>
+
+            <div class="mb-3 mt-3">
+              <label class="form-label">CSV File</label>
+              <input id="csvFile" class="form-control" type="file" accept=".csv">
+              <div class="form-text">CSV must contain a column with the name provided above (default: <code>text</code>).</div>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <button id="csvBtn" class="btn btn-success" onclick="uploadCsv()">Upload & Predict</button>
+              <div id="csvSpinner" class="spinner-border text-success ms-3" role="status" style="display:none;width:1.4rem;height:1.4rem;"></div>
+              <div id="csvMsg" class="ms-3 text-muted"></div>
+            </div>
+          </form>
+
+          <hr>
+          <h5>Preview / Download</h5>
+          <div class="mb-2">
+            <a id="downloadLink" class="btn btn-outline-primary btn-sm" style="display:none;">Download predictions.csv</a>
+            <button id="previewBtn" class="btn btn-outline-secondary btn-sm" style="display:none;" onclick="togglePreview()">Toggle preview</button>
+          </div>
+
+          <div id="csv-preview" style="display:none;">
+            <table id="previewTable" class="table table-sm table-striped"></table>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <footer class="footer">
-        <p>Developed by Team FakeBuster | 2025</p>
+
+    <footer class="mt-4 small text-muted">
+      Server: <code>/predict_text</code> and <code>/predict_csv</code> endpoints. If you get errors, open the backend logs.
     </footer>
-    </div>
+  </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <!-- Bootstrap JS + Popper (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // -------- Single text prediction ----------
+    async function predictText() {
+      const text = document.getElementById("singleText").value.trim();
+      const task = document.getElementById("singleTask").value;
+      const threshold = parseFloat(document.getElementById("singleThreshold").value) || 0.75;
+      if (!text) { alert("Please enter text to predict."); return; }
+
+      toggleSpinner("singleSpinner", true);
+      document.getElementById("singleResult").style.display = "none";
+
+      try {
+        const res = await fetch("/predict_text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, task, threshold })
+        });
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.error || JSON.stringify(j));
+        showSingleResult(j);
+      } catch (err) {
+        showSingleResult({ error: err.message });
+      } finally {
+        toggleSpinner("singleSpinner", false);
+      }
+    }
+
+    function showSingleResult(obj) {
+      const out = document.getElementById("singleResultBody");
+      if (obj.error) {
+        out.innerHTML = `<div class="text-danger">Error: ${escapeHtml(obj.error)}</div>`;
+      } else {
+        const conf = (obj.confidence !== undefined) ? Math.round(obj.confidence * 10000)/100 + "%" : "N/A";
+        let badgeClass = "badge-uncertain";
+        if (obj.prediction && obj.prediction.toLowerCase().includes("fake")) badgeClass = "badge-fake";
+        else if (obj.prediction && (obj.prediction.toLowerCase().includes("real") || obj.prediction.toLowerCase().includes("ham"))) badgeClass = "badge-real";
+
+        out.innerHTML = `
+          <div><strong>Task:</strong> ${escapeHtml(obj.task || "")}</div>
+          <div class="mt-2"><strong>Prediction:</strong> <span class="badge ${badgeClass}">${escapeHtml(obj.prediction)}</span> &nbsp; <small class="text-muted">(${conf})</small></div>
+          <div class="mt-2"><strong>Text:</strong><div class="p-2 border rounded mt-1">${escapeHtml(obj.text)}</div></div>
+        `;
+      }
+      document.getElementById("singleResult").style.display = "block";
+    }
+
+    // -------- CSV upload & preview ----------
+    async function uploadCsv() {
+      const fileInput = document.getElementById("csvFile");
+      const file = fileInput.files[0];
+      if (!file) { alert("Select a CSV file first."); return; }
+
+      const task = document.getElementById("csvTask").value;
+      const text_col = document.getElementById("csvTextCol").value || "text";
+      const threshold = document.getElementById("csvThreshold").value || "0.75";
+
+      const form = new FormData();
+      form.append("file", file);
+      form.append("task", task);
+      form.append("text_col", text_col);
+      form.append("threshold", threshold);
+
+      toggleSpinner("csvSpinner", true);
+      document.getElementById("csvMsg").textContent = "Uploading...";
+
+      try {
+        const resp = await fetch("/predict_csv", { method: "POST", body: form });
+        if (!resp.ok) {
+          const err = await resp.json().catch(()=>({error: "Unknown error"}));
+          throw new Error(err.error || JSON.stringify(err));
+        }
+        // Get returned blob (CSV) and create downloadable link
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const filename = "predictions_" + Date.now() + ".csv";
+
+        const dl = document.getElementById("downloadLink");
+        dl.href = url;
+        dl.download = filename;
+        dl.style.display = "inline-block";
+
+        const pv = document.getElementById("previewBtn");
+        pv.style.display = "inline-block";
+
+        document.getElementById("csvMsg").textContent = `Received ${Math.round(blob.size/1024)} KB — click Download to save.`;
+
+        // Read text and show preview table (first 30 rows)
+        const text = await blob.text();
+        populatePreviewTable(text);
+      } catch (err) {
+        document.getElementById("csvMsg").textContent = "Error: " + err.message;
+      } finally {
+        toggleSpinner("csvSpinner", false);
+      }
+    }
+
+    function populatePreviewTable(csvText) {
+      // simple CSV parse (split lines, split by comma) — decent for demo
+      const rows = csvText.trim().split(/\r?\n/).map(r => r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+      const table = document.getElementById("previewTable");
+      table.innerHTML = "";
+
+      if (rows.length === 0) return;
+
+      // header
+      const header = rows[0].map(h => stripQuotes(h));
+      let thead = "<thead><tr>" + header.map(h => `<th>${escapeHtml(h)}</th>`).join("") + "</tr></thead>";
+      table.insertAdjacentHTML("beforeend", thead);
+
+      // body (limit to 30 rows)
+      const bodyRows = rows.slice(1, 31);
+      let tbody = "<tbody>";
+      for (const r of bodyRows) {
+        tbody += "<tr>" + r.map(c => `<td>${escapeHtml(stripQuotes(c))}</td>`).join("") + "</tr>";
+      }
+      tbody += "</tbody>";
+      table.insertAdjacentHTML("beforeend", tbody);
+
+      document.getElementById("csv-preview").style.display = "block";
+    }
+
+    function togglePreview() {
+      const box = document.getElementById("csv-preview");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    // -------- helpers ----------
+    function toggleSpinner(id, on) {
+      document.getElementById(id).style.display = on ? "inline-block" : "none";
+    }
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return "";
+      return String(s).replace(/[&<>"'`]/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[m]; });
+    }
+    function stripQuotes(s) {
+      return s && s.length >=2 && ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) ? s.slice(1,-1) : s;
+    }
+  </script>
 </body>
 </html>
