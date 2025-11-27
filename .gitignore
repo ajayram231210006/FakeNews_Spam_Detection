@@ -1,7 +1,7 @@
 # Virtual environment
 venv/
 myenv/
-
+predictions
 # Data (do not push raw or processed data)
 data/raw/
 data/processed/
